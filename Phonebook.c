@@ -43,25 +43,72 @@
 //       => 메인 화면 담당
 
 //    5) 검색 화면을 출력할 display_search() 
-//    6) 검색을 시행할 search()
-//    7) 특정 전화번호의 정보들을 보여주는 display_info()
+//    6) 특정 전화번호의 정보들을 보여주는 display_info()
 //       => 검색 화면 담당
 
-//    8) 전화번호와 이름, 기타 특징들을 순서대로 입력받고 저장하는 save_info()
+//    7) 전화번호와 이름, 기타 특징들을 순서대로 입력받고 저장하는 save_info()
 //       => 추가 화면 담당
 
-//    9) "back"인지 "quit"인지를 입력받고 실행할 decide()
+//    8) "back"인지 "quit"인지를 입력받고 실행할 decide()
 //       => 결정 화면 담당
 
-//    10) 4~9의 과정들은 while문 안에서 실행되며, decide()에 의해 다시 반복문을 돌 것인지 빠져나갈 것인지를 결정
+//    9) 4~9의 과정들은 while문 안에서 실행되며, decide()에 의해 다시 반복문을 돌 것인지 빠져나갈 것인지를 결정
 //       => loop 실행
 
 // 8. 실제로 구성 요소에 대한 코드를 함수 단위로, 또는 기능 단위로 작성하기
 
 #include <stdio.h> 
+#include <string.h>
+#include <stdlib.h>
+#include <windows.h>
+
+#define MAX 10000
+#define DATA 100
+
+FILE* phonebook;
+
+typedef struct {
+  char phonenumber[DATA];
+  char name[DATA];
+  char group[DATA];
+  char information[MAX];
+} PHONE;
+
+int PLAY = 1;
+int password;
+int check;
+char what[DATA];
+char search[DATA];
+
+void check_password();
+void display_main(char* arg1);
+void display_search(char* arg2);
+void display_info(char* arg3);
+void decide();
+void save_info();
 
 int main() {
+  phonebook = fopen("D://phonebook.txt", "a+b");
+  check_password();
 
-  
+  while(PLAY) {
+      display_main(&what);
+
+      if(strcmp(what, "search") == 0) {
+        display_search(&search);
+        display_info(&search);
+        decide();
+      }
+
+      else if(strcmp(what, "add") == 0) {
+        save_info();
+        decide();
+      }
+
+      else {
+        printf("please type search or add\n");
+        continue;
+      }
+    }
   return 0;
 }
