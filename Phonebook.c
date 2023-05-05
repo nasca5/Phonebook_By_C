@@ -12,8 +12,8 @@ FILE* phonebook;
 
 // 전화번호들의 정보를 담을 구조체
 typedef struct {
-  char phonenumber[DATA];
   char name[DATA];
+  char phonenumber[DATA];
   char group[DATA];
   char information[MAX];
   int exist;
@@ -26,59 +26,46 @@ char password[DATA];
 // 비밀번호 검사할 문자열
 char check[DATA];
 // 어떤 함수 실행할지 결정하는 문자열
-char what[DATA];
-// 검색할 문자열
-char search[DATA];
 
 // 비밀번호가 없으면 비밀번호 생성 후 파일에 저장, 있을 경우 비밀번호를 입력받고 맞는지 확인후 loop문 실행
 void check_password(); 
-// 전화번호부 메인 화면 출력. 저장된 전화번호들과 "search"인지 "add"인지 정할 수 있는 입력칸 출력 입력에 맞게 다음 함수 실행 
-void display_main(PHONE* phone);
-
-void display_search(char* arg2);
-
-void display_info(char* arg3);
-
+// 전화번호부 메인 화면 출력. 저장된 전화번호들과 "name"인지 "add"인지 정할 수 있는 입력칸 출력 입력에 맞게 다음 함수 실행 
+void display_main(PHONE*);
+// file에 저장된 전화번호들을 구조체에 저장하는 함수
+void init_phonebook(PHONE*);
+// 전화번호부에서 검색한 전화번호의 정보를 출력하는 함수
+void display_search(PHONE*);
+//
 void decide();
-
+//입력 버퍼를 지우는 함수
+void Clear();
+// 전화번호부에 새로운 전화번호를 저장하는 함수
 void save_info();
+
+
+
+
 
 int main() {
   check_password();
+  PHONE phone[DATA] = {};
 
-  PHONE phone[DATA] = {
-    {"01077143103", "Kang", "friend", "nerd", 0},  
-    {"01062143103", "Hyun", "friend", "idiot", 0}
-  };
-  
   for (int i = 0; i < DATA; i++) {
     phone[i].exist = 0;
   }
 
-  phone[0].exist = 1;
-  phone[1].exist = 1;
+  init_phonebook(phone);
 
-  // while(PLAY) {
-      display_main(phone);
+  while(PLAY) {
+    display_main(phone);
+  }
 
-  //  if(strcmp(what, "search") == 0) {
-  //    display_search(&search);
-  //    display_info(&search);
-  //    decide();
-  //  }
+  printf("Bye!\n");
 
-  //  else if(strcmp(what, "add") == 0) {
-  //    save_info();
-  //    decide();
-  //  }
-
-  //  else {
-  //    printf("please type search or add\n");
-  //    continue;
-  //  }
-  //}
   return 0;
 }
+
+
 
 
 void check_password() {
@@ -163,30 +150,139 @@ void check_password() {
   }
 }
 
-void display_main(PHONE* phone) {
+void init_phonebook(PHONE* phone) {
+  phonebook = fopen("./phonebook.txt", "a+b");
+  if (phonebook == NULL) {
+    printf("error!\n");
+    exit(0);
+  }
+
   int i = 0;
-  printf("========================================\n");
-  while(phone[i].exist != 0) {
-    printf("%-3d : %-15s\n", i+1, phone[i].name);
+  char temp[DATA];
+  //fseek(phonebook, strlen(password) + 1, SEEK_SET);
+  fgets(temp, DATA, phonebook);
+
+  while(fgets(temp, DATA, phonebook) != NULL) {
+    temp[strlen(temp) - 1] = '\0';
+    strcpy((phone+i)->name, temp);
+
+    fgets(temp, DATA, phonebook);
+    temp[strlen(temp) - 1] = '\0';
+    strcpy((phone+i)->phonenumber, temp);
+
+    fgets(temp, DATA, phonebook);
+    temp[strlen(temp) - 1] = '\0';
+    strcpy((phone+i)->group, temp);
+
+    fgets(temp, MAX, phonebook);
+    temp[strlen(temp) - 1] = '\0';
+    strcpy((phone+i)->information, temp);
+
+    (phone+i)->exist = 1;
     i++;
   }
+
+  fclose(phonebook);
+}
+
+void display_main(PHONE* phone) {
+  int message = 0;
+  int i = 0;
+
   printf("========================================\n");
-    do {
-    printf("What you want to do? (typing search or add) : ");
-    scanf("%s", check);
 
-    if(strcmp(check, "search") == 0) {
-      //display_search();
+  while((phone+i)->exist != 0) {
+    printf("%-3d : %-15s\n", i+1, (phone+i)->name);
+    i++;
+    message = 1;
+  }
+
+  if (message == 0) {
+    printf("No data!\n");
+  }
+
+  printf("========================================\n");
+    
+  printf("What you want to do? (typing name to search info or new to save info) : ");
+  scanf("%s", check);
+
+  system("cls");
+  Clear();
+
+  if(strcmp(check, "new") == 0) {
+    save_info();
+  }
+
+  else {
+    display_search(phone);
+  }
+}
+
+void display_search(PHONE* phone) {
+  int message = 0;
+
+  for(int i = 0; i < DATA; i++) {
+    if(strcmp(check, (phone+i)->name) == 0) {
+      printf("========================================\n");
+      printf("        name : %-15s\n", (phone+i)->name);
+      printf("phone number : %-15s\n", (phone+i)->phonenumber);
+      printf("       group : %-15s\n", (phone+i)->group);
+      printf(" information : %-100s\n", (phone+i)->information);
+      printf("========================================\n");
+      message = 1;
+    }
+  }
+
+  if (message == 0) {
+    printf("No info!\n");
+  }
+
+  decide();
+}
+
+void save_info(PHONE* phone) {
+  phonebook = fopen("./phonebook.txt", "a+b");
+
+  if (phonebook == NULL) {
+    printf("error!\n");
+    exit(0);
+  }
+
+  //Clear();
+
+  for(int i = 0; i < DATA; i++) {
+    if((phone+i)->exist == 0) {
+      printf("========================================\n");
+      printf("        name : ");
+      fgets((phone+i)->name, DATA, stdin);
+      fputs((phone+i)->name, phonebook);
+      printf("phone number : ");
+      fgets((phone+i)->phonenumber, DATA, stdin);
+      fputs((phone+i)->phonenumber, phonebook);
+      printf("       group : ");
+      fgets((phone+i)->group, DATA, stdin);
+      fputs((phone+i)->group, phonebook);
+      printf(" information : ");
+      fgets((phone+i)->information, MAX, stdin);
+      fputs((phone+i)->information, phonebook);
+      printf("========================================\n");
       break;
     }
+  }
+  decide();
 
-    else if(strcmp(check, "add") == 0) {
-      //save_info();
-      break;
-    }
+}
 
-    else {
-      printf("please typing search or add\n");
-    }
-  } while(strcmp(check, "search") != 0 && strcmp(check, "add") != 0);
+void decide() {
+  printf("do you want to continue? (y : 1 / n : 0) : ");
+  scanf("%d", &PLAY);
+
+  system("cls");
+  Clear();
+}
+
+void Clear() {
+  while(getchar() != '\n') {
+    continue;
+  }
 }
