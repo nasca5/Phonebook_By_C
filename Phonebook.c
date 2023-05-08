@@ -35,12 +35,12 @@ void display_main(PHONE*);
 void init_phonebook(PHONE*);
 // 전화번호부에서 검색한 전화번호의 정보를 출력하는 함수
 void display_search(PHONE*);
-//
+// 프로그램을 계속 실행할지 아니면 종료할 것인지 결정하는 함
 void decide();
 //입력 버퍼를 지우는 함수
 void Clear();
 // 전화번호부에 새로운 전화번호를 저장하는 함수
-void save_info();
+void save_info(PHONE*);
 
 
 
@@ -54,9 +54,10 @@ int main() {
     phone[i].exist = 0;
   }
 
-  init_phonebook(phone);
+
 
   while(PLAY) {
+    init_phonebook(phone);
     display_main(phone);
   }
 
@@ -210,7 +211,7 @@ void display_main(PHONE* phone) {
   Clear();
 
   if(strcmp(check, "new") == 0) {
-    save_info();
+    save_info(phone);
   }
 
   else {
@@ -269,6 +270,7 @@ void save_info(PHONE* phone) {
       break;
     }
   }
+  fclose(phonebook);
   decide();
 
 }
