@@ -54,8 +54,6 @@ int main() {
     phone[i].exist = 0;
   }
 
-
-
   while(PLAY) {
     init_phonebook(phone);
     display_main(phone);
